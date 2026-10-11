@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05030c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>AFTERLIGHT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; height: 100%; background: #05030c; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #game { position: fixed; inset: 0; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+  #rotate { display: none; position: fixed; inset: 0; z-index: 10000; background: #05030c; color: #ffd23f;
+    font: 14px "Press Start 2P", monospace; text-align: center; align-items: center; justify-content: center; line-height: 2; padding: 20px; }
+  @media (orientation: portrait) and (pointer: coarse) { #rotate { display: flex; } }
+</style>
+  <script type="module" crossorigin src="./assets/index-D-9nBmD5.js"></script>
+</head>
+<body>
+<div id="game"></div>
+<div id="rotate">ROTATE YOUR PHONE<br>AFTERLIGHT plays in landscape</div>
+</body>
+</html>
