@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">afyrtlight</string>
+    <string name="title_activity_main">afyrtlight</string>
+    <string name="package_name">com.firemeat13.afyrtlight</string>
+    <string name="custom_url_scheme">com.firemeat13.afyrtlight</string>
+</resources>

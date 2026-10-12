@@ -135,12 +135,20 @@ export class DialogueBox {
       };
       const showOpts = () => {
         options.forEach((o, i) => {
-          const t = this.scene.add.text(110 + i * 330, 462, o, { fontFamily: FONT, fontSize: '18px', color: '#fff' })
-            .setInteractive({ useHandCursor: true });
-          t.on('pointerdown', (_p: any, _x: any, _y: any, ev: Phaser.Types.Input.EventData) => { ev.stopPropagation(); sel = i; place(); confirm(); });
-          this.c.add(t); this.choiceTxt.push(t);
+          const x = 110 + i * 330;
+          const y = 490; // moved down so text isn't covered
+          // background box for touch targeting + visual clarity
+          const bg = this.scene.add.rectangle(x, y, 280, 40, 0x2a1f4a, 0.75).setStrokeStyle(2, 0x7d5ca0)
+            .setInteractive({ useHandCursor: true }).setDepth(this.c.depth + 1);
+          bg.on('pointerdown', (_p: any, _x: any, _y: any, ev: Phaser.Types.Input.EventData) => { ev.stopPropagation(); sel = i; place(); confirm(); });
+          bg.on('pointerover', () => { bg.setFillStyle(0x3a2f5a); });
+          bg.on('pointerout', () => { bg.setFillStyle(0x2a1f4a); });
+          const t = this.scene.add.text(x, y, o, { fontFamily: FONT, fontSize: '18px', color: '#fff', align: 'center' })
+            .setOrigin(0.5).setDepth(this.c.depth + 2);
+          this.c.add([bg, t]);
+          this.choiceTxt.push(t);
         });
-        this.cursor.setVisible(true);
+        this.cursor.setVisible(false);
         place();
       };
       const cleanup = () => {
