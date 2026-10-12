@@ -355,6 +355,8 @@ class AudioSysImpl {
   }
   stopSpeech() { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
   /** Creature vocalization: unsettling howl/shriek of the Hollow Man. */
+  stopSpeech() { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
+  /** Creature vocalization: unsettling howl/shriek of the Hollow Man. */
   creature(dur = 0.8, pitch = 1.0) {
     if (!this.ctx) return;
     const c = this.ctx, t = c.currentTime;
