@@ -354,41 +354,6 @@ class AudioSysImpl {
     }
   }
   stopSpeech() { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
-  /** Creature vocalization: unsettling howl/shriek of the Hollow Man. */
-  stopSpeech() { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
-  /** Creature vocalization: unsettling howl/shriek of the Hollow Man. */
-  creature(dur = 0.8, pitch = 1.0) {
-    if (!this.ctx) return;
-    const c = this.ctx, t = c.currentTime;
-    const out = c.createGain();
-    out.gain.setValueAtTime(0.0001, t);
-    out.gain.exponentialRampToValueAtTime(0.4, t + 0.1);
-    out.gain.setValueAtTime(0.4, t + dur * 0.6);
-    out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    // layered frequencies: main tone + harmonics that shift
-    [1, 0.5, 2].forEach((mult, i) => {
-      const o = c.createOscillator();
-      o.type = i === 0 ? 'triangle' : 'sawtooth';
-      o.frequency.setValueAtTime(80 * mult * pitch, t);
-      o.frequency.exponentialRampToValueAtTime(60 * mult * pitch * 1.5, t + dur * 0.5);
-      o.frequency.linearRampToValueAtTime(45 * mult * pitch * 0.8, t + dur);
-      const g = c.createGain();
-      g.gain.value = 0.3 / (i + 1);
-      o.connect(g).connect(out);
-      o.start(t);
-      o.stop(t + dur);
-    });
-    // noise component
-    const n = c.createBufferSource();
-    n.buffer = this.noiseBuf;
-    n.loop = true;
-    const ng = c.createGain();
-    ng.gain.value = 0.25;
-    n.connect(ng).connect(out);
-    n.start(t);
-    n.stop(t + dur);
-    out.connect(this.sfxBus);
-  }
   silence(sec = 2) {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
