@@ -11,7 +11,7 @@ const VHS = '"Courier New", Courier, monospace';
 const SPOTS = [{ x: 185, y: 215 }, { x: 495, y: 205 }, { x: 800, y: 215 }];
 const STAGE_SCALE = [0.2, 0.34, 0.54];
 const HEAD_R = 512 * 0.19; // head half-height inside the an_monster texture
-const BOSS_HP = 9;
+const BOSS_HP = 6; // reduced HP but fight is harder with more events
 
 /**
  * PART 3 finale - inside the cabin. The pixel art is gone: this is "found footage".
@@ -36,6 +36,7 @@ export class CabinScene extends Phaser.Scene {
   private cap!: Phaser.GameObjects.Text;
   private hud!: Phaser.GameObjects.Text;
   private stamp!: Phaser.GameObjects.Text;
+  private bossBar!: Phaser.GameObjects.Graphics;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
 
   private aim = new Phaser.Math.Vector2(W / 2, H / 2);
@@ -109,6 +110,7 @@ export class CabinScene extends Phaser.Scene {
     this.cross = this.add.circle(0, 0, 9).setStrokeStyle(2, 0xffffff, 0.8).setDepth(88);
     this.add.text(26, 20, 'PLAY ▶', { fontFamily: VHS, fontSize: '24px', color: '#ffffff', fontStyle: 'bold' }).setDepth(90).setAlpha(0.85);
     this.stamp = this.add.text(26, H - 40, '', { fontFamily: VHS, fontSize: '20px', color: '#ffffff', fontStyle: 'bold' }).setDepth(90).setAlpha(0.85);
+    this.bossBar = this.add.graphics().setScrollFactor(0).setDepth(90);
     this.hud = this.add.text(W - 26, 20, '', { fontFamily: VHS, fontSize: '18px', color: '#ffffff', fontStyle: 'bold', align: 'right' }).setOrigin(1, 0).setDepth(90).setAlpha(0.9);
     this.cap = this.add.text(W / 2, H - 92, '', {
       fontFamily: VHS, fontSize: '24px', color: '#ffffff', fontStyle: 'bold', align: 'center', stroke: '#000000', strokeThickness: 5, wordWrap: { width: W - 160 },
@@ -163,6 +165,7 @@ export class CabinScene extends Phaser.Scene {
 
     this.cameras.main.fadeIn(900, 0, 0, 0);
     this.refreshHud();
+    this.updateBossBar();
     void this.intro();
   }
 
@@ -174,6 +177,20 @@ export class CabinScene extends Phaser.Scene {
     if (voice) { AudioSys.speak(text); AudioSys.staticBurst(0.2, 0.2); }
     await this.wait(hold);
     this.cap.setText('');
+  }
+
+  private updateBossBar() {
+    const barW = 200, barH = 16, x = 20, y = 20;
+    const pct = Math.max(0, this.bossHp / BOSS_HP);
+    this.bossBar.clear();
+    this.bossBar.fillStyle(0x330000, 0.8);
+    this.bossBar.fillRect(x, y, barW, barH);
+    if (pct > 0.5) this.bossBar.fillStyle(0xff3030, 0.9);
+    else if (pct > 0.25) this.bossBar.fillStyle(0xff6060, 0.9);
+    else this.bossBar.fillStyle(0xff0000, 0.9);
+    this.bossBar.fillRect(x, y, barW * pct, barH);
+    this.bossBar.lineStyle(2, 0xff5555, 0.95);
+    this.bossBar.strokeRect(x, y, barW, barH);
   }
 
   private refreshHud() {
@@ -211,7 +228,7 @@ export class CabinScene extends Phaser.Scene {
   private appear() {
     this.vis = true; this.stage = 0;
     this.spot = Phaser.Math.Between(0, 2);
-    this.stepT = [1.7, 1.3, 1.0][this.phase];
+    this.stepT = [1.4, 1.0, 0.7][this.phase]; // harder: faster stepping
     AudioSys.staticBurst(0.15, 0.2);
     if (Math.random() < 0.3) {
       AudioSys.speak(Phaser.Math.RND.pick(['Adam.', 'Look at me.', 'Nicholas is outside.', 'He is so quiet now.', 'Come home.', 'I can smell you.']));
@@ -226,7 +243,7 @@ export class CabinScene extends Phaser.Scene {
     AudioSys.heartbeat();
     if (this.stage > 2) { void this.attack(); return; }
     if (this.phase >= 1 && Math.random() < 0.5) this.spot = Phaser.Math.Between(0, 2);
-    this.stepT = [1.7, 1.3, 1.0][this.phase];
+    this.stepT = [1.4, 1.0, 0.7][this.phase]; // harder: faster stepping
   }
 
   private hide(delay: number) { this.vis = false; this.hiddenT = delay; }
@@ -251,7 +268,7 @@ export class CabinScene extends Phaser.Scene {
     this.drips.setAlpha(Math.min(0.9, this.drips.alpha + 0.2));
     if (this.hp <= 0) { void this.die(); return; }
     await this.caption('It tears into you.', 1200);
-    this.hide([1.8, 1.4, 1.0][this.phase]);
+    this.hide([1.4, 1.0, 0.6][this.phase]); // harder: reappear faster
     this.state = 'fight';
   }
 
@@ -289,9 +306,10 @@ export class CabinScene extends Phaser.Scene {
       this.gore(h.x, h.y, 1.4 * h.scale + 0.5);
       AudioSys.scream(0.35);
       this.flash.setFillStyle(0xffffff, 0.5); this.tweens.add({ targets: this.flash, alpha: 0, duration: 200 });
-      this.hide([1.5, 1.1, 0.8][this.phase]);
+      this.hide([1.2, 0.8, 0.5][this.phase]); // harder: much shorter recovery after hit
       if (this.bossHp <= 0) { void this.win(); return; }
-      if ((this.bossHp === 6 || this.bossHp === 3) && !this.eventsDone.has(this.bossHp)) void this.phaseEvent(this.bossHp);
+    this.updateBossBar();
+      if ((this.bossHp === 4 || this.bossHp === 2) && !this.eventsDone.has(this.bossHp)) void this.phaseEvent(this.bossHp);
     } else if (Math.abs(this.aim.x - h.x) < 130 * h.scale && this.aim.y > h.y && this.aim.y < h.y + 760 * h.scale) {
       // body shot: it staggers back a step, but is not hurt
       this.gore(this.aim.x, this.aim.y, 0.5);
@@ -439,8 +457,8 @@ export class CabinScene extends Phaser.Scene {
     }
     // monster brain
     if (this.state === 'fight') {
-      if (!this.vis) { this.hiddenT -= dt; if (this.hiddenT <= 0) this.appear(); }
-      else { this.stepT -= dt; if (this.stepT <= 0) this.advance(); }
+      if (!this.vis) { this.hiddenT -= dt; if (this.hiddenT <= 0) { this.appear(); if (Math.random() < 0.6) AudioSys.creature(0.6, 0.8 + Math.random() * 0.4); } }
+      else { this.stepT -= dt; if (this.stepT <= 0) { AudioSys.creature(0.4, 1.1); this.advance(); } }
     }
     // monster sprite
     const show = this.vis && (this.state === 'fight' || this.state === 'event');
