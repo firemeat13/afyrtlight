@@ -457,7 +457,7 @@ export class CabinScene extends Phaser.Scene {
     }
     // monster brain
     if (this.state === 'fight') {
-      if (!this.vis) { this.hiddenT -= dt; if (this.hiddenT <= 0) { this.appear(); if (Math.random() < 0.6) AudioSys.creature(0.6, 0.8 + Math.random() * 0.4); } }
+      if (!this.vis) { this.hiddenT -= dt; if (this.hiddenT <= 0) this.appear(); }
       else { this.stepT -= dt; if (this.stepT <= 0) { this.advance(); } }
     }
     // monster sprite
